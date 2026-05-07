@@ -35,8 +35,56 @@ export default function SourcesPage() {
   }, []);
 
   async function loadSources() {
+    // Check for demo mode
+    const isDemo = document.cookie.includes('demo_mode=true') || 
+                   window.location.search.includes('demo=true');
+    
+    if (isDemo) {
+      const demoSources: Source[] = [
+        {
+          id: 'demo-src-1',
+          chatbot_id: 'demo-bot',
+          type: 'url',
+          name: 'Company FAQ',
+          url: 'https://example.com/faq',
+          status: 'ready',
+          chunk_count: 24,
+          created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+          updated_at: new Date(Date.now() - 86400000).toISOString(),
+        },
+        {
+          id: 'demo-src-2',
+          chatbot_id: 'demo-bot',
+          type: 'url',
+          name: 'Pricing Page',
+          url: 'https://example.com/pricing',
+          status: 'ready',
+          chunk_count: 8,
+          created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+          updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        },
+        {
+          id: 'demo-src-3',
+          chatbot_id: 'demo-bot',
+          type: 'text',
+          name: 'Return Policy',
+          status: 'ready',
+          chunk_count: 3,
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+          updated_at: new Date(Date.now() - 86400000).toISOString(),
+        },
+      ];
+      setSources(demoSources);
+      setChatbotId('demo-bot');
+      setLoading(false);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: chatbots } = await (supabase.from('chatbots') as any)

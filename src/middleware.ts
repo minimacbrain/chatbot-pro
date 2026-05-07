@@ -38,8 +38,17 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  // Demo mode bypass
+  const isDemo = request.cookies.get('demo_mode')?.value === 'true' || 
+                 request.nextUrl.searchParams.get('demo') === 'true';
+  
+  // Set demo cookie if ?demo=true
+  if (request.nextUrl.searchParams.get('demo') === 'true') {
+    supabaseResponse.cookies.set('demo_mode', 'true', { maxAge: 60 * 60 * 24 }); // 24 hours
+  }
+
+  // Protected routes (skip if demo mode)
+  if (request.nextUrl.pathname.startsWith('/dashboard') && !user && !isDemo) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

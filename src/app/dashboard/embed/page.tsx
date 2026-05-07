@@ -17,6 +17,24 @@ export default function EmbedPage() {
   }, []);
 
   async function loadChatbot() {
+    // Check for demo mode
+    const isDemo = document.cookie.includes('demo_mode=true') || 
+                   window.location.search.includes('demo=true');
+    
+    if (isDemo) {
+      const demoChatbot: Chatbot = {
+        id: 'demo-bot-abc123',
+        user_id: 'demo-user',
+        name: 'Support Bot',
+        greeting: 'Hi! How can I help you today?',
+        primary_color: '#6366F1',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setChatbot(demoChatbot);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 

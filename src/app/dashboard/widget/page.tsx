@@ -33,6 +33,27 @@ export default function WidgetPage() {
   }, []);
 
   async function loadChatbot() {
+    // Check for demo mode
+    const isDemo = document.cookie.includes('demo_mode=true') || 
+                   window.location.search.includes('demo=true');
+    
+    if (isDemo) {
+      const demoChatbot: Chatbot = {
+        id: 'demo-bot',
+        user_id: 'demo-user',
+        name: 'Support Bot',
+        greeting: 'Hi! How can I help you today?',
+        primary_color: '#6366F1',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setChatbot(demoChatbot);
+      setName(demoChatbot.name);
+      setGreeting(demoChatbot.greeting);
+      setPrimaryColor(demoChatbot.primary_color);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 

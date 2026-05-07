@@ -18,8 +18,67 @@ export default function InboxPage() {
 
   useEffect(() => {
     async function loadConversations() {
+      // Check for demo mode
+      const isDemo = document.cookie.includes('demo_mode=true') || 
+                     window.location.search.includes('demo=true');
+      
+      if (isDemo) {
+        // Load demo data
+        const demoConversations: ConversationWithMessages[] = [
+          {
+            id: 'demo-1',
+            chatbot_id: 'demo-bot',
+            visitor_id: 'visitor-abc123',
+            visitor_email: 'sarah@example.com',
+            status: 'open',
+            created_at: new Date(Date.now() - 1800000).toISOString(),
+            updated_at: new Date(Date.now() - 300000).toISOString(),
+            messages: [
+              { id: 'm1', conversation_id: 'demo-1', role: 'user', content: 'Hi! What are your business hours?', created_at: new Date(Date.now() - 1800000).toISOString() },
+              { id: 'm2', conversation_id: 'demo-1', role: 'assistant', content: 'Hello! We\'re open Monday through Friday, 9 AM to 6 PM EST. Is there anything else I can help you with?', created_at: new Date(Date.now() - 1790000).toISOString() },
+              { id: 'm3', conversation_id: 'demo-1', role: 'user', content: 'Do you offer weekend support?', created_at: new Date(Date.now() - 600000).toISOString() },
+              { id: 'm4', conversation_id: 'demo-1', role: 'assistant', content: 'We have limited weekend support via email. You can reach us at support@example.com and we typically respond within 24 hours on weekends.', created_at: new Date(Date.now() - 590000).toISOString() },
+            ]
+          },
+          {
+            id: 'demo-2',
+            chatbot_id: 'demo-bot',
+            visitor_id: 'visitor-def456',
+            visitor_email: 'mike@company.co',
+            status: 'resolved',
+            created_at: new Date(Date.now() - 7200000).toISOString(),
+            updated_at: new Date(Date.now() - 3600000).toISOString(),
+            messages: [
+              { id: 'm5', conversation_id: 'demo-2', role: 'user', content: 'How do I reset my password?', created_at: new Date(Date.now() - 7200000).toISOString() },
+              { id: 'm6', conversation_id: 'demo-2', role: 'assistant', content: 'To reset your password, click "Forgot Password" on the login page. You\'ll receive an email with a reset link. The link expires in 24 hours.', created_at: new Date(Date.now() - 7190000).toISOString() },
+              { id: 'm7', conversation_id: 'demo-2', role: 'user', content: 'Got it, thanks!', created_at: new Date(Date.now() - 3600000).toISOString() },
+            ]
+          },
+          {
+            id: 'demo-3',
+            chatbot_id: 'demo-bot',
+            visitor_id: 'visitor-ghi789',
+            visitor_email: null,
+            status: 'escalated',
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            updated_at: new Date(Date.now() - 43200000).toISOString(),
+            messages: [
+              { id: 'm8', conversation_id: 'demo-3', role: 'user', content: 'I need to speak with a human about my refund', created_at: new Date(Date.now() - 86400000).toISOString() },
+              { id: 'm9', conversation_id: 'demo-3', role: 'assistant', content: 'I understand you need help with a refund. Let me connect you with our support team who can assist you directly. Someone will reach out within 2 hours.', created_at: new Date(Date.now() - 86390000).toISOString() },
+            ]
+          }
+        ];
+        setConversations(demoConversations);
+        setSelectedConversation(demoConversations[0]);
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: chatbots } = await (supabase.from('chatbots') as any)
